@@ -1,6 +1,8 @@
 (ns ^:figwheel-always zelkova-quil-flyer.core
     (:require [quil.core :as q :include-macros true]
-              [quil.middleware]))
+              [quil.middleware]
+              [jamesmacaulay.zelkova.signal :as z]
+              [zelkova-quil-flyer.signal :as signal]))
 
 (enable-console-print!)
 
@@ -9,6 +11,9 @@
   (let [init-state {:flyer {:position [250 250]
                             :angle    0
                             :velocity [0 0]}}]
+    (-> init-state
+        (signal/app-signal)
+        (z/pipe-to-atom (q/state-atom)))
     (q/frame-rate 30)
     (q/no-smooth)
     (q/rect-mode :center)
