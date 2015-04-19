@@ -37,10 +37,11 @@
 (defn app-signal
   [init-state]
   (let [time-deltas (time/fps 30)
-        inputs (z/map vector
-                      time-deltas
-                      keyboard/space
-                      mouse/position)]
+        inputs      (->> (z/map vector
+                                time-deltas
+                                keyboard/space
+                                mouse/position)
+                         (z/sample-on time-deltas))]
     (z/reductions (fn [state [time-delta spacebar? mouse-pos]]
                     (-> state
                         (inertia time-delta)
