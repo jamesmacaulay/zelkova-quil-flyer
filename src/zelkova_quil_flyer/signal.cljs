@@ -5,7 +5,10 @@
 
 (defn steering
   [state mouse-pos]
-  (assoc-in state [:flyer :position] mouse-pos))
+  (let [flyer-pos (-> state :flyer :position)
+        diff      (v/subtract mouse-pos flyer-pos)
+        angle     (v/vector->radians diff)]
+    (assoc-in state [:flyer :angle] angle)))
 
 (defn app-signal
   [init-state]
