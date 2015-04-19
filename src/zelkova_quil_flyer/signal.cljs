@@ -8,7 +8,7 @@
 (defn inertia
   [state time-delta]
   (let [velocity (-> state :flyer :velocity)
-        translation (v/multiply velocity time-delta)]
+        translation (v/multiply velocity time-delta 0.2)]
     (update-in state
                [:flyer :position]
                (partial v/add translation))))
@@ -22,7 +22,9 @@
                  (fn [velocity]
                    (->> angle
                         (v/radians->vector)
-                        (v/add velocity)))))
+                        (v/with-magnitude 0.2)
+                        (v/add velocity)
+                        (v/limit-magnitude 1)))))
     state))
 
 (defn steering
