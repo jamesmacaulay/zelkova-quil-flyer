@@ -5,16 +5,24 @@
             [jamesmacaulay.zelkova.keyboard :as keyboard]
             [jamesmacaulay.zelkova.time :as time]))
 
-(defn thrust
+(defn inertia
+  [state time-delta]
+  (let [velocity (-> state :flyer :velocity)
+        translation (v/multiply velocity time-delta)]
+    (update-in state
+               [:flyer :position]
+               (partial v/add translation))))
+
+(defn acceleration
   [state toggle]
   (if toggle
     (let [angle (-> state :flyer :angle)]
       (update-in state
-                 [:flyer :position]
-                 (fn [pos]
+                 [:flyer :velocity]
+                 (fn [velocity]
                    (->> angle
                         (v/radians->vector)
-                        (v/add pos)))))
+                        (v/add velocity)))))
     state))
 
 (defn steering
@@ -33,7 +41,8 @@
                       mouse/position)]
     (z/reductions (fn [state [time-delta spacebar? mouse-pos]]
                     (-> state
-                        (thrust spacebar?)
+                        (inertia time-delta)
+                        (acceleration spacebar?)
                         (steering mouse-pos)))
                   init-state
                   inputs)))
