@@ -2,7 +2,8 @@
   (:require [zelkova-quil-flyer.vector-math :as v]
             [jamesmacaulay.zelkova.signal :as z]
             [jamesmacaulay.zelkova.mouse :as mouse]
-            [jamesmacaulay.zelkova.keyboard :as keyboard]))
+            [jamesmacaulay.zelkova.keyboard :as keyboard]
+            [jamesmacaulay.zelkova.time :as time]))
 
 (defn thrust
   [state toggle]
@@ -25,8 +26,12 @@
 
 (defn app-signal
   [init-state]
-  (let [inputs (z/map vector keyboard/space mouse/position)]
-    (z/reductions (fn [state [spacebar? mouse-pos]]
+  (let [time-deltas (time/fps 30)
+        inputs (z/map vector
+                      time-deltas
+                      keyboard/space
+                      mouse/position)]
+    (z/reductions (fn [state [time-delta spacebar? mouse-pos]]
                     (-> state
                         (thrust spacebar?)
                         (steering mouse-pos)))
