@@ -1,7 +1,20 @@
 (ns zelkova-quil-flyer.signal
   (:require [zelkova-quil-flyer.vector-math :as v]
             [jamesmacaulay.zelkova.signal :as z]
-            [jamesmacaulay.zelkova.mouse :as mouse]))
+            [jamesmacaulay.zelkova.mouse :as mouse]
+            [jamesmacaulay.zelkova.keyboard :as keyboard]))
+
+(defn thrust
+  [state toggle]
+  (if toggle
+    (let [angle (-> state :flyer :angle)]
+      (update-in state
+                 [:flyer :position]
+                 (fn [pos]
+                   (->> angle
+                        (v/radians->vector)
+                        (v/add pos)))))
+    state))
 
 (defn steering
   [state mouse-pos]
@@ -12,6 +25,10 @@
 
 (defn app-signal
   [init-state]
-  (z/reductions steering
-                init-state
-                mouse/position))
+  (let [inputs (z/map vector keyboard/space mouse/position)]
+    (z/reductions (fn [state [spacebar? mouse-pos]]
+                    (-> state
+                        (thrust spacebar?)
+                        (steering mouse-pos)))
+                  init-state
+                  inputs)))
