@@ -10,7 +10,8 @@
   []
   (let [init-state {:flyer {:position [250 250]
                             :angle    0
-                            :velocity [0 0]}}]
+                            :velocity [0 0]
+                            :image (q/request-image "flyer.png")}}]
     (-> init-state
         (signal/app-signal)
         (z/pipe-to-atom (q/state-atom)))
@@ -22,13 +23,14 @@
     init-state))
 
 (defn draw-flyer
-  [{:keys [position angle]}]
+  [{:keys [image position angle]}]
   (q/reset-matrix)
   (q/fill 255)
   (q/stroke 180)
   (apply q/translate position)
-  (q/rotate angle)
-  (q/triangle -6 -8, 14 0, -6 8))
+  (q/rotate (+ angle q/HALF-PI))
+  (q/scale 0.2)
+  (q/image image 0 0))
 
 (defn draw
   [{:keys [flyer]}]
